@@ -454,7 +454,7 @@ function Footer() {
       <Linkedin className="h-5 w-5" />
     </a>
     <a
-      href="ahmadi08zahra@gmail.com"
+      href="mailto:ahmadi08zahra@gmail.com"
       className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
       aria-label="Email"
     >
