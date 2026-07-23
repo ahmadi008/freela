@@ -433,19 +433,38 @@ function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-slate-900">Connect</h4>
-            <div className="mt-3 flex gap-3">
-              <a href="#" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition">
-                <Github className="h-5 w-5" />
-              </a>
-              <a href="#" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition">
-                <Linkedin className="h-5 w-5" />
-              </a>
-            </div>
-          </div>
+  <h4 className="text-sm font-semibold text-slate-900">Connect</h4>
+  <div className="mt-3 flex gap-3">
+    <a
+      href="https://github.com/ahmadi008"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+      aria-label="GitHub"
+    >
+      <Github className="h-5 w-5" />
+    </a>
+    <a
+      href="https://www.linkedin.com/in/zahra-ahmadi-7183431a5/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+      aria-label="LinkedIn"
+    >
+      <Linkedin className="h-5 w-5" />
+    </a>
+    <a
+      href="ahmadi08zahra@gmail.com"
+      className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+      aria-label="Email"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="20" height="16" x="2" y="4" rx="2"/>
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+      </svg>
+    </a>
+  </div>
+</div>
         </div>
 
         <div className="mt-10 border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
