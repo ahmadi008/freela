@@ -142,27 +142,7 @@ application = {
 - **No CLS** — skeletons + smooth fade/slide transitions.
 - **Friendly empty states** — every list page tells you what to do next.
 
-## 🧠 Reflection
 
-**What challenges do freelancers face when applying for projects?**
-Writing personalized proposals at scale, standing out in crowded marketplaces, communicating professionally with strangers, and tracking dozens of applications at once.
-
-**How can AI help improve proposal quality and communication?**
-AI eliminates the blank-page problem, ensures every reply is tailored to the specific project, and lets freelancers sound more polished and professional — without spending 30+ minutes per application.
-
-**Which feature provided the most value to freelancers?**
-The Proposal Generator — it's the highest-leverage time-saver, turning a 30-minute task into a 30-second one while improving quality.
-
-**How could Freela help users build successful freelance careers?**
-By removing the operational friction (proposals, tracking, comms) so freelancers can focus on doing great work and building client relationships.
-
-## 🗺 Stretch Goals (future)
-
-- **Portfolio Builder** — let users create and showcase project portfolios inside Freela.
-- **AI Negotiation Assistant** — suggest strategies for scope, timelines, and pricing.
-- **Proposal Templates Library** — generate proposals in different styles and tones.
-- **Browser extension** — one-click "analyze this job post" from Upwork, Fiverr, etc.
-- **Multi-currency support** — auto-convert budgets to the user's local currency.
 
 ## 📄 License
 
