@@ -73,16 +73,7 @@ npm run build      # outputs to dist/
 npm run preview    # test the production build locally
 ```
 
-### Deploy to Netlify (recommended)
 
-1. Push to GitHub.
-2. Sign in to https://app.netlify.com.
-3. **Add new site → Import from Git** → pick your repo.
-4. Netlify auto-detects settings from `netlify.toml`:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-5. (Optional) add `VITE_OPENAI_API_KEY` in **Site settings → Environment variables**.
-6. Click **Deploy**. Your site is live in ~30 seconds.
 
 ## 📂 Project Structure
 
