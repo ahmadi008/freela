@@ -1,5 +1,5 @@
 # Freela — AI-Powered Freelance Coach
-
+## Live URL : https://6a61adb6110f06290feaf525--freela-zahra.netlify.app/
 > An intelligent platform that helps freelancers write stronger proposals, analyze job posts, polish their profiles, and win more projects.
 
 ![Freela Dashboard](https://img.shields.io/badge/Status-Ready-success?style=flat-square)
