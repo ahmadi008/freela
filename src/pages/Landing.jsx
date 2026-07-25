@@ -329,9 +329,9 @@ function Stat({ label, value }) {
 /* ------------------------------------------------------------- */
 function Testimonials() {
   const items = [
-    { quote: "Freela cut my proposal time from 30 minutes to 30 seconds. I landed 4 new clients in my first month.", name: "Maya P.", role: "Frontend Developer" },
-    { quote: "The skill matching is genius. I stopped wasting time applying to projects I couldn't actually win.", name: "Daniel K.", role: "Full-Stack Engineer" },
-    { quote: "I look more professional in client messages. The follow-up templates alone are worth it.", name: "Sara L.", role: "UI/UX Designer" },
+    { quote: "Freela cut my proposal time from 30 minutes to 30 seconds. I landed 4 new clients in my first month.", name: "Sowaida Nizami.", role: "Frontend Developer" },
+    { quote: "The skill matching is genius. I stopped wasting time applying to projects I couldn't actually win.", name: "Raihana Sediqi.", role: "Full-Stack Engineer" },
+    { quote: "I look more professional in client messages. The follow-up templates alone are worth it.", name: "Sidra .", role: "UI/UX Designer" },
   ]
   return (
     <section id="testimonials" className="bg-slate-50 py-20 sm:py-28">

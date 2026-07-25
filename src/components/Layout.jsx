@@ -7,7 +7,7 @@ import {
 import { cn } from '../utils/helpers.js'
 import { useApp } from '../context/AppContext.jsx'
 import { isUsingRealAI } from '../services/aiService.js'
-import ThemeSwitcher from './ThemeSwitcher.jsx'
+
 
 const NAV = [
   { to: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
@@ -98,7 +98,7 @@ export default function Layout({ children }) {
             </nav>
 
             <div className="border-t border-slate-200 p-4 space-y-3">
-              <ThemeSwitcher />
+              
               <div className={cn(
                 'rounded-lg p-3 text-xs',
                 usingAI ? 'bg-green-50 ring-1 ring-green-200' : 'bg-amber-50 ring-1 ring-amber-200'
