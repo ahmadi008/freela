@@ -26,7 +26,6 @@
 Freela works **with or without** an OpenAI API key:
 
 - **Real AI mode** — set `VITE_OPENAI_API_KEY` in `.env.local` and the app calls `gpt-4o-mini` for all features.
-- **Demo mode** (default) — uses a sophisticated template engine that produces realistic, professional outputs based on your project description and profile. Perfect for bootcamp demos, offline work, and cost-free use.
 
 A status pill in the sidebar always tells you which mode is active.
 
