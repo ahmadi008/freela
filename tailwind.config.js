@@ -4,7 +4,6 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class',          // ← ADD THIS — enables .dark class strategy
   theme: {
     extend: {
       colors: {
@@ -19,7 +18,6 @@ export default {
           700: '#4338ca',
           800: '#3730a3',
           900: '#312e81',
-          950: '#1e1b4b',
         },
         accent: {
           50:  '#fdf4ff',
@@ -32,7 +30,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       animation: {
         'fade-in':    'fadeIn 0.3s ease-in-out',
@@ -48,7 +46,6 @@ export default {
       },
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
         'glow': '0 0 30px -5px rgba(99, 102, 241, 0.4)',
       }
     },
