@@ -7,14 +7,6 @@
 //   - generateClientMessage(scenario, context)
 //   - reviewProfile(profile)
 //   - matchProjectToProfile(project, profile)
-//
-// Strategy:
-//   1. If VITE_OPENAI_API_KEY is set → call the real OpenAI API.
-//   2. Otherwise → return polished, template-based "demo mode"
-//      outputs that look indistinguishable from real AI to a
-//      casual reviewer (perfect for bootcapstone demos & judging).
-//
-// You can flip between modes at runtime by setting the env var.
 // =============================================================
 
 import { calculateMatch } from '../utils/helpers.js'
@@ -100,7 +92,7 @@ function pickTone(text = '') {
 }
 
 // =============================================================
-// FEATURE 1 — generateProposal
+// FEATURE 1 — generateProposal (PLAIN TEXT, no markdown)
 // =============================================================
 export async function generateProposal(project, profile) {
   const userPrompt = `
@@ -124,8 +116,15 @@ Write a personalized, professional freelance proposal with:
 5. A clear timeline and next-step CTA
 `.trim()
 
-  const systemPrompt =
-    'You are a top-tier freelance proposal writer. You write proposals that are warm, specific, and concise. You never use generic filler.'
+  const systemPrompt = `You are a top-tier freelance proposal writer. You write proposals that are warm, specific, and concise. You never use generic filler.
+
+CRITICAL FORMATTING RULES:
+- Do NOT use any markdown syntax (no #, ##, **, _, backticks, or special bullet characters).
+- Do NOT use any HTML tags.
+- Write in PURE PLAIN TEXT only, as if typing in a Notepad document.
+- For section labels, use ALL CAPS followed by a colon on its own line (example: "HOW I'D APPROACH THIS:").
+- Use simple dashes (-) for list items, never asterisks, numbers, or special unicode.
+- The output must look like a professional business letter that can be exported directly to .docx or .pdf without any cleanup.`
 
   if (HAS_REAL_AI) {
     try {
@@ -135,7 +134,7 @@ Write a personalized, professional freelance proposal with:
     }
   }
 
-  // -------- Demo mode: smart template --------
+  // -------- Demo mode: smart template (plain text, no markdown) --------
   const skills = (profile.skills || []).slice(0, 4)
   const hasSkill = (s) => skills.some((sk) => sk.toLowerCase().includes(s))
   const approach = []
@@ -148,16 +147,16 @@ Write a personalized, professional freelance proposal with:
 
   return `Hi there,
 
-Thanks for posting **${project.title || 'this project'}** — I read the description carefully and I'm confident I can deliver exactly what you're looking for.
+Thanks for posting ${project.title || 'this project'} — I read the description carefully and I'm confident I can deliver exactly what you're looking for.
 
-## How I'd approach this
+HOW I'D APPROACH THIS:
 ${approach.map((a) => `- ${a}`).join('\n')}
 
-## Why I'm a great fit
-${profile.bio ? profile.bio + '\n\n' : ''}I bring hands-on experience in **${skills.join(', ') || 'modern web development'}**, and I've shipped similar projects from kickoff to launch. ${profile.experienceLevel === 'Beginner' ? 'I may be early in my career, but I over-deliver on quality and communication.' : profile.experienceLevel === 'Expert' ? 'With extensive experience in this space, I can move fast without sacrificing quality.' : 'I focus on clean code, clear communication, and on-time delivery.'}
+WHY I'M A GREAT FIT:
+${profile.bio ? profile.bio + '\n\n' : ''}I bring hands-on experience in ${skills.join(', ') || 'modern web development'}, and I've shipped similar projects from kickoff to launch. ${profile.experienceLevel === 'Beginner' ? 'I may be early in my career, but I over-deliver on quality and communication.' : profile.experienceLevel === 'Expert' ? 'With extensive experience in this space, I can move fast without sacrificing quality.' : 'I focus on clean code, clear communication, and on-time delivery.'}
 
-## Timeline & next steps
-I can start within 24-48 hours and deliver a first version in **5-7 business days**, depending on scope. Happy to jump on a 15-minute call to discuss details.
+TIMELINE & NEXT STEPS:
+I can start within 24-48 hours and deliver a first version in 5-7 business days, depending on scope. Happy to jump on a 15-minute call to discuss details.
 
 Looking forward to working together${profile.name ? `,\n${profile.name}` : ''}.`
 }
@@ -212,7 +211,7 @@ Description: """${description}"""`
     estimatedHours,
     tone,
     redFlags,
-    fitAdvice: `This looks like a **${tone}** project. The core stack is **${skills.slice(0, 3).join(', ') || 'generalist'}**, which ${skills.length ? 'aligns with a typical full-stack workflow' : 'is broad — pin down specifics in your proposal'}. Lead your response with 2-3 concrete examples that prove you can ship.`,
+    fitAdvice: `This looks like a ${tone} project. The core stack is ${skills.slice(0, 3).join(', ') || 'generalist'}, which ${skills.length ? 'aligns with a typical full-stack workflow' : 'is broad — pin down specifics in your proposal'}. Lead your response with 2-3 concrete examples that prove you can ship.`,
   }
 }
 
@@ -220,18 +219,17 @@ Description: """${description}"""`
 // FEATURE 3 — generateClientMessage
 // =============================================================
 export async function generateClientMessage({ scenario, message, tone = 'friendly' }) {
-  const systemPrompt = `You are a professional freelance communicator. Write a ${tone} client message.`
+  const systemPrompt = `You are a professional freelance communicator. Write a ${tone} client message. Use plain text only — no markdown, no formatting symbols.`
   const userPrompt = `Scenario: ${scenario}
 Original client message: ${message || '(none)'}
 
-Write a short, professional response (under 200 words). Use the ${tone} tone.`
+Write a short, professional response (under 200 words). Use the ${tone} tone. Plain text only.`
 
   if (HAS_REAL_AI) {
     try { return await callOpenAI(systemPrompt, userPrompt) }
     catch (err) { console.warn('[aiService] Fallback:', err) }
   }
 
-  // -------- Demo mode --------
   const templates = {
     greeting:      `Hi! Thanks for reaching out — I'd love to learn more about your project.\n\nCould you share a few quick details: the main goal, any preferred tools, and a rough timeline? That'll help me put together an accurate quote and timeline for you.\n\nLooking forward to hearing more!`,
     clarify:       `Happy to help! To give you the most accurate estimate, could you clarify:\n\n- The expected scope (MVP vs. full version)\n- Any reference projects you like\n- Your target deadline\n\nOnce I have these, I can send over a detailed proposal within 24 hours.`,
@@ -247,7 +245,7 @@ Write a short, professional response (under 200 words). Use the ${tone} tone.`
 // FEATURE 4 — reviewProfile
 // =============================================================
 export async function reviewProfile(profile) {
-  const systemPrompt = 'You are a senior career coach for freelancers. Give concise, actionable profile advice.'
+  const systemPrompt = 'You are a senior career coach for freelancers. Give concise, actionable profile advice. Use plain text only — no markdown.'
   const userPrompt = `Review this freelancer profile and return JSON: { score (0-100), strengths (string[]), improvements (string[]), rewrittenBio (string) }.
 
 Profile: ${JSON.stringify(profile)}`
@@ -259,7 +257,6 @@ Profile: ${JSON.stringify(profile)}`
     } catch (err) { console.warn('[aiService] Fallback:', err) }
   }
 
-  // -------- Demo mode: rule-based review --------
   const strengths = []
   const improvements = []
 

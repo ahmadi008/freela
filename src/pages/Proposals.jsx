@@ -1,15 +1,15 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import {
   Sparkles, Loader2, Save, Copy, Download, Trash2, Edit3, ArrowLeft,
-  FileText, CheckCircle2, Clock, Wand2
+  FileText, CheckCircle2, Clock, Wand2, FileType
 } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
 import { generateProposal } from '../services/aiService.js'
 import LoadingSpinner from '../components/LoadingSpinner.jsx'
 import EmptyState from '../components/EmptyState.jsx'
-import { copyToClipboard, downloadText, formatDate, readingTime, wordCount, timeAgo } from '../utils/helpers.js'
-
+import { copyToClipboard, downloadText, wordCount, readingTime, timeAgo } from '../utils/helpers.js'
+import { downloadAsDocx, downloadAsPdf } from '../utils/exporters.js'
 export default function Proposals() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -85,15 +85,32 @@ export default function Proposals() {
     setEditing(null)
   }
 
-  const copy = async () => {
+    const copy = async () => {
     const ok = await copyToClipboard(content)
     showToast(ok ? 'Copied to clipboard' : 'Copy failed', ok ? 'success' : 'error')
   }
-
-  const download = () => {
-    downloadText(`${project.title || 'proposal'}.txt`, content)
+  // Three download formats
+  const filename = () => project.title || 'proposal'
+  const handleDownloadTxt = () => {
+    downloadText(`${filename()}.txt`, content)
+    showToast('Downloaded .txt', 'success')
   }
-
+  const handleDownloadDocx = async () => {
+    try {
+      await downloadAsDocx(filename(), content)
+      showToast('Downloaded Word document', 'success')
+    } catch (err) {
+      showToast('Word export failed: ' + err.message, 'error')
+    }
+  }
+  const handleDownloadPdf = () => {
+    try {
+      downloadAsPdf(filename(), content)
+      showToast('Downloaded PDF', 'success')
+    } catch (err) {
+      showToast('PDF export failed: ' + err.message, 'error')
+    }
+  }
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* Main editor */}
@@ -151,12 +168,18 @@ export default function Proposals() {
           <div className="card animate-slide-up">
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-slate-900">Proposal draft</h4>
-              <div className="flex gap-1.5">
-                <button onClick={copy} className="btn-ghost text-xs" title="Copy">
+                            <div className="flex flex-wrap gap-1.5">
+                <button onClick={copy} className="btn-ghost text-xs" title="Copy text">
                   <Copy className="h-3.5 w-3.5" /> Copy
                 </button>
-                <button onClick={download} className="btn-ghost text-xs" title="Download">
-                  <Download className="h-3.5 w-3.5" /> .txt
+                <button onClick={handleDownloadTxt} className="btn-ghost text-xs" title="Download as plain text">
+                  <FileText className="h-3.5 w-3.5" /> .txt
+                </button>
+                <button onClick={handleDownloadDocx} className="btn-ghost text-xs" title="Download as Word document">
+                  <FileType className="h-3.5 w-3.5" /> .docx
+                </button>
+                <button onClick={handleDownloadPdf} className="btn-ghost text-xs" title="Download as PDF">
+                  <Download className="h-3.5 w-3.5" /> .pdf
                 </button>
               </div>
             </div>
