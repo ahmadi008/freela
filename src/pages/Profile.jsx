@@ -75,7 +75,7 @@ export default function Profile() {
           <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
               <label className="label">Full name</label>
-              <input className="input" value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="Sara Johnson" />
+              <input className="input" value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="Sara Ahmadi" />
             </div>
             <div>
               <label className="label">Email</label>
