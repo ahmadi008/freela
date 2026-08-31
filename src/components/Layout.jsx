@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, User, Search, FileText, ListChecks, MessageSquare,
@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { cn } from '../utils/helpers.js'
 import { useApp } from '../context/AppContext.jsx'
-import { isUsingRealAI } from '../services/aiService.js'
+import { checkAIStatus } from '../services/aiService.js'
 
 
 const NAV = [
@@ -44,7 +44,10 @@ export default function Layout({ children }) {
   const [open, setOpen] = useState(false)
   const { profile } = useApp()
   const location = useLocation()
-  const usingAI = isUsingRealAI()
+  const [usingAI, setUsingAI] = useState(false)
+  useEffect(() => {
+    checkAIStatus().then(setUsingAI).catch(() => setUsingAI(false))
+  }, [])
 
   const currentPage = NAV.find((n) => n.to === location.pathname) || NAV[0]
 
@@ -111,8 +114,8 @@ export default function Layout({ children }) {
                 </div>
                 <p className={cn('mt-1', usingAI ? 'text-green-700' : 'text-amber-700')}>
                   {usingAI
-                    ? 'OpenAI API key detected. Using live AI.'
-                    : 'Add VITE_OPENAI_API_KEY to enable live AI.'}
+                    ? 'OpenRouter API key detected. Using live AI.'
+                    : 'Add OPENROUTER_API_KEY in Netlify to enable live AI.'}
                 </p>
               </div>
               <a
