@@ -11,36 +11,40 @@
 
 import { calculateMatch } from '../utils/helpers.js'
 
-// The AI key now lives SERVER-SIDE (see netlify/functions/ai.mjs).
-// The browser never sees the key — every AI call goes through the /api/ai proxy.
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY
+const MODEL   = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o-mini'
+const HAS_REAL_AI = Boolean(API_KEY && API_KEY.startsWith('sk-'))
 
-export async function checkAIStatus() {
-  try {
-    const res = await fetch('/api/ai', { method: 'GET' })
-    const data = await res.json()
-    return Boolean(data.configured)
-  } catch {
-    return false
-  }
-}
+export const isUsingRealAI = () => HAS_REAL_AI
 
 // =============================================================
 // Low-level OpenAI caller (only used if a key is set)
 // =============================================================
 async function callOpenAI(systemPrompt, userPrompt) {
-  const res = await fetch('/api/ai', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system: systemPrompt, user: userPrompt }),
-  })
-  let data = {}
-  try { data = await res.json() } catch { /* ignore */ }
-  if (!res.ok) {
-    const err = new Error(data.error || `AI request failed (${res.status})`)
-    err.code = data.code || 'unknown'
-    throw err
+  if (!HAS_REAL_AI) {
+    throw new Error('OpenAI key not configured. App is in demo mode.')
   }
-  return (data.text || '').trim()
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userPrompt },
+      ],
+      temperature: 0.7,
+    }),
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`OpenAI API error: ${res.status} ${err}`)
+  }
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content?.trim() || ''
 }
 
 // =============================================================
@@ -122,11 +126,12 @@ CRITICAL FORMATTING RULES:
 - Use simple dashes (-) for list items, never asterisks, numbers, or special unicode.
 - The output must look like a professional business letter that can be exported directly to .docx or .pdf without any cleanup.`
 
-  try {
-    return await callOpenAI(systemPrompt, userPrompt)
-  } catch (err) {
-    if (err.code !== 'missing_key') throw err
-    console.warn('[aiService] No AI key configured — using demo mode.')
+  if (HAS_REAL_AI) {
+    try {
+      return await callOpenAI(systemPrompt, userPrompt)
+    } catch (err) {
+      console.warn('[aiService] Falling back to demo mode:', err)
+    }
   }
 
   // -------- Demo mode: smart template (plain text, no markdown) --------
@@ -167,12 +172,13 @@ export async function analyzeProject(description) {
 
 Description: """${description}"""`
 
-  try {
-    const raw = await callOpenAI(systemPrompt, userPrompt + '\n\nReturn ONLY valid JSON.')
-    return JSON.parse(raw)
-  } catch (err) {
-    if (err.code !== 'missing_key') throw err
-    console.warn('[aiService] No AI key configured — using demo mode.')
+  if (HAS_REAL_AI) {
+    try {
+      const raw = await callOpenAI(systemPrompt, userPrompt + '\n\nReturn ONLY valid JSON.')
+      return JSON.parse(raw)
+    } catch (err) {
+      console.warn('[aiService] Falling back to demo mode:', err)
+    }
   }
 
   // -------- Demo mode: heuristic analyzer --------
@@ -219,11 +225,9 @@ Original client message: ${message || '(none)'}
 
 Write a short, professional response (under 200 words). Use the ${tone} tone. Plain text only.`
 
-  try {
-    return await callOpenAI(systemPrompt, userPrompt)
-  } catch (err) {
-    if (err.code !== 'missing_key') throw err
-    console.warn('[aiService] No AI key configured — using demo mode.')
+  if (HAS_REAL_AI) {
+    try { return await callOpenAI(systemPrompt, userPrompt) }
+    catch (err) { console.warn('[aiService] Fallback:', err) }
   }
 
   const templates = {
@@ -246,12 +250,11 @@ export async function reviewProfile(profile) {
 
 Profile: ${JSON.stringify(profile)}`
 
-  try {
-    const raw = await callOpenAI(systemPrompt, userPrompt + '\n\nReturn ONLY valid JSON.')
-    return JSON.parse(raw)
-  } catch (err) {
-    if (err.code !== 'missing_key') throw err
-    console.warn('[aiService] No AI key configured — using demo mode.')
+  if (HAS_REAL_AI) {
+    try {
+      const raw = await callOpenAI(systemPrompt, userPrompt + '\n\nReturn ONLY valid JSON.')
+      return JSON.parse(raw)
+    } catch (err) { console.warn('[aiService] Fallback:', err) }
   }
 
   const strengths = []
