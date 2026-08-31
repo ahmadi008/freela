@@ -1,43 +1,42 @@
 // netlify/functions/ai.mjs
-// Server-side proxy to OpenRouter (free models). Keeps the API key out of the browser.
-// Served at /.netlify/functions/ai and exposed to the frontend at /api/ai.
+// Netlify v2 function — uses Web API Request / Response.
+// Proxies AI calls to OpenRouter (free models). Key stays server-side.
 
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
 const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free'
 
-function json(statusCode, body) {
-  return {
-    statusCode,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }
-}
-
 export default async function handler(req) {
-  // Health check — lets the frontend know if a key is configured.
-  if (req.httpMethod === 'GET') {
-    return json(200, { configured: Boolean(process.env.OPENROUTER_API_KEY) })
+
+  // Health check — lets the frontend know a key is configured.
+  if (req.method === 'GET') {
+    return Response.json({ configured: Boolean(process.env.OPENROUTER_API_KEY) })
   }
 
-  if (req.httpMethod !== 'POST') {
-    return json(405, { code: 'method_not_allowed', error: 'Method not allowed' })
+  if (req.method !== 'POST') {
+    return Response.json({ code: 'method_not_allowed', error: 'Method not allowed' }, { status: 405 })
   }
 
   let payload
   try {
-    payload = JSON.parse(req.body || '{}')
+    payload = await req.json()
   } catch {
-    return json(400, { code: 'bad_request', error: 'Invalid JSON body' })
+    return Response.json({ code: 'bad_request', error: 'Invalid JSON body' }, { status: 400 })
   }
 
   const { system, user } = payload
   if (!system || !user) {
-    return json(400, { code: 'bad_request', error: 'Missing "system" or "user" prompt' })
+    return Response.json(
+      { code: 'bad_request', error: 'Missing "system" or "user" prompt' },
+      { status: 400 }
+    )
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) {
-    return json(500, { code: 'missing_key', error: 'OPENROUTER_API_KEY is not set on the server.' })
+    return Response.json(
+      { code: 'missing_key', error: 'OPENROUTER_API_KEY is not set on the server.' },
+      { status: 500 }
+    )
   }
 
   try {
@@ -46,7 +45,7 @@ export default async function handler(req) {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
-        'HTTP-Referer': req.headers?.origin || 'https://freela-zahra.netlify.app',
+        'HTTP-Referer': req.headers.get('origin') || 'https://freela-zahra.netlify.app',
         'X-Title': 'Freela',
       },
       body: JSON.stringify({
@@ -71,14 +70,18 @@ export default async function handler(req) {
         if (parsed?.error?.message) message = parsed.error.message
       } catch { /* ignore */ }
       if (upstream.status === 401) message = 'Invalid or missing OpenRouter API key.'
-      else if (upstream.status === 429) message = 'Rate limit reached — free models have limits. Try again shortly, or switch models.'
-      return json(upstream.status, { code, error: message })
+      else if (upstream.status === 429) message = 'Rate limit reached — try again in a minute.'
+      return Response.json({ code, error: message }, { status: upstream.status })
     }
 
     const data = JSON.parse(raw)
     const text = data.choices?.[0]?.message?.content?.trim() || ''
-    return json(200, { text })
+    return Response.json({ text })
+
   } catch (err) {
-    return json(502, { code: 'upstream_error', error: 'Failed to reach OpenRouter: ' + (err?.message || 'unknown error') })
+    return Response.json(
+      { code: 'upstream_error', error: 'Failed to reach OpenRouter: ' + (err?.message || 'unknown') },
+      { status: 502 }
+    )
   }
 }
